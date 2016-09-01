@@ -1,0 +1,25 @@
+./FileTx.py
+#!/usr/bin/env python
+import socket
+import os
+import sys
+
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
+
+filename = sys.argv[1]
+f = open(filename, "r")
+blob = sys.argv[1]
+blob = blob + "\n" + f.read()
+f.close()
+
+TCP_IP = '192.168.1.4'
+TCP_PORT = 9999
+TCP_ADDR = (TCP_IP, TCP_PORT)
+BUFFER_SIZE = 40000
+
+sUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sUDP.sendto(blob, TCP_ADDR)
+
+sUDP.close()
+

@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+
+import RPi.GPIO as GPIO
+import MFRC522
+import socket
+import json
+import datetime
+
+UDP_IP = "192.168.1.4"
+UDP_PORT = 5550
+UDP_ADDR = (UDP_IP, UDP_PORT)
+
+UDPsock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+# Create an object of the class MFRC522
+MIFAREReader = MFRC522.MFRC522()
+
+# Welcome message
+print "Welcome to the MFRC522 data read example"
+print "Press Ctrl-C to stop."
+
+print "Time : ", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fACST")
+
+# This loop keeps checking for chips. If one is near it will get the UID and authenticate
+try:
+  while True:
+    
+    # Scan for cards    
+    (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+
+    # If a card is found
+    if status == MIFAREReader.MI_OK:
+        print "Card detected"
+    
+    # Get the UID of the card
+    (status,uid) = MIFAREReader.MFRC522_Anticoll()
+
+    # If we have the UID, continue
+    if status == MIFAREReader.MI_OK:
+
+        # Print UID
+        UIDstr = str(uid)
+        RPiTime = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fACST")
+        MESSAGE = '{"car_name":"TEST","msg_type":"RFID","datetime":"' + RPiTime + '","UID":"' + UIDstr + '","rider":"Unknown"}'
+        print "Message : ", MESSAGE
+        UDPsock.sendto(MESSAGE, UDP_ADDR)
+    
+except:
+    print "#### ERROR or Ctrl-C detected #####"
+    
+finally:
+    print "Cleaning up GPIO"
+    GPIO.cleanup()
+    UDPsock.sendto("", UDP_ADDR) # Send a "" NULL message signal to Receiver
+    
+    print "Closing UDP socket"
+    UDPsock.close()
+    print "Bye..."

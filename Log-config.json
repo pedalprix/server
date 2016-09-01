@@ -1,0 +1,22 @@
+{
+   "LOG_IP":"0.0.0.0",
+   "LOG_PORT":2950,
+   "LOG_BUFFER_SIZE":60000,
+
+   "RFID_FIX_TX_IP":"192.168.1.4",
+   "RFID_FIX_TX_PORT":5544,
+
+   "RFID_FIX_RX_IP":"0.0.0.0",
+   "RFID_FIX_RX_PORT":5544,
+
+   "SQL_Host":"localhost",
+   "SQL_User":"steve",
+   "SQL_Passwd":"amee",
+   "SQL_DB":"pp",
+   "SQL_RFID_UID_table_name":"RFID_UID",
+   "SQL_RFID_Log_table_name":"RFID_Log",
+   "SQL_GPS_Log_table_name":"GPS_Log",
+
+   "RFID_RIDER_JSON":"Log-config-UID_rider.json"
+}
+
