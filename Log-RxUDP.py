@@ -57,63 +57,78 @@ sLOG = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sLOG.bind(LOG_ADDR)
 
 # process received packets
-while True:
-   Rx_log_msg, addr = sLOG.recvfrom(LOG_BUFFER_SIZE)
-   Client_IP = addr[0]
-   Client_PORT = addr[1]
+try:
+  while True:
+    Rx_log_msg, addr = sLOG.recvfrom(LOG_BUFFER_SIZE)
+    Car_IP = addr[0]
+    Car_PORT = addr[1]
 
-   if is_json(Rx_log_msg):
+    if is_json(Rx_log_msg):
       json_data = json.loads(Rx_log_msg)
       msg_type = json_data['Msg_Type']
-      if msg_type = "GPS":
-#        Process_GPS_msg(json_data)          # to put all below in one line
+
+      # GPS
+      if msg_type == "GPS":
          try: # read the json info
+            datetimeACST = str(datetime.datetime.strptime(json_data['TimeACST'], '%Y-%m-%d %H:%M:%S'))
+            Msg_Count = int(json_data['Msg_Count'])
             Car_Name = json_data['Car_Name']
-            Latitude = json_data['tpv'][0]['lat']
-            Longitude = json_data['tpv'][0]['lon']
-            Speed = json_data['tpv'][0]['speed']
-            GMTdatetime = datetime.datetime.strptime(json_data['tpv'][0]['time'], '%Y-%m-%dT%H:%M:%S')
-            CSTdatetime = GMTdatetime + datetime.timedelta(hours=9,mins=30)
+            Car_Latitude = float(json_data['Msg'][0]['tpv'][0]['lat'])
+            Car_Longitude = float(json_data['Msg'][0]['tpv'][0]['lon'])
+            Car_Speed = float(json_data['Msg'][0]['tpv'][0]['speed'])
 
          except: # just get the next message
+            print "ERROR processing JSON fields in GPS message."
             continue
+
          try: # insert info into database
-            sql_query = "INSERT INTO GPS_log(Datetime, Car, Longitude, Latitude, Speed) \
-                         VALUES ('%s', '%s', '%s', '%s', '%s')" \
-                         % (CSTdatetime, Car_Name, Longitude, Latitude, Speed)
+            sql_query = "INSERT INTO GPS_Log(datetimeACST, Msg_Count, Car_Name, Car_Longitude, Car_Latitude, Car_Speed, Car_IP) \
+                         VALUES             ('%s',         %d,        '%s',     %f,            %f,           %f,        '%s');" \
+                         %                  (datetimeACST, Msg_Count, Car_Name, Car_Longitude, Car_Latitude, Car_Speed, Car_IP)
             cursor.execute(sql_query)
             db.commit()
+#            print "Message %d added to database from %s with datestamp %s" % (Msg_Count, msg_type, datetimeACST)
          except:
+            print "GPS: SQL Exception"
             db.rollback()
 
-      elif msg_type = "RFID":
-#        Process_RFID_msg(json_data)         # to put all below in one line
+      # RFID
+      elif msg_type == "RFID":
          try: # read the json info
+            datetimeACST = str(datetime.datetime.strptime(json_data['TimeACST'], '%Y-%m-%d %H:%M:%S'))
+            Msg_Count = int(json_data['Msg_Count'])
             Car_Name = json_data['Car_Name']
-            RXdatetime = datetime.datetime.strptime(json_data['Time'], '%Y-%m-%dT%H:%M:%S')
-            UID = json_data['UID']
-            Msg_Count = json_data['Msg_Count']
+            Riders_UID = json_data['Msg'][0]['RFID-UID']
          except: # just get the next message
+            print "ERROR processing JSON fields in RFID message."
             continue
+
          try: # insert info into database
-            sql_query = "INSERT INTO RFID_log(Datetime, Car, UID, Msg_Count) \
-                         VALUES ('%s', '%s', '%s', '%s')" \
-                         % (RXdatetime, Car_Name, UID, Msg_Count)
+            sql_query = "INSERT INTO RFID_Log(datetimeACST, Car_Name, Riders_UID, Msg_Count, Car_IP) \
+                         VALUES (            '%s',          '%s',     '%s',       %d,        '%s');" \
+                         %                   (datetimeACST, Car_Name, Riders_UID, Msg_Count, Car_IP)
             cursor.execute(sql_query)
             db.commit()
+#            print "Message %d added to database from %s with datestamp %s" % (Msg_Count, msg_type, datetimeACST)
          except:
+            print "RFID: SQL Exception"
             db.rollback()
-   else:
+      else:
+        print "==============================================================="
+        print "ERROR : INVALID msg_type detected. Received message follows:"
+        print Rx_log_msg
+        print "---------------------------------------------------------------"
+    else:
       print "==============================================="
-      print "====== NON VALID JSON message detected ========"
+      print "ERROR : INVALID JSON below"
       print Rx_log_msg
       print "-----------------------------------------------"
 
 finally:
-	# close database
-	db.close()
+  # close database
+  db.close()
 
-	# close the UDP socket
-	sLOG.close()
-	print "Bye..."
+  # close the UDP socket
+  sLOG.close()
+  print "Bye..."
 
