@@ -54,6 +54,19 @@ except:
    print "TEST=> ERROR Connecting to database"
    sys.exit()
 
+def Get_UID(rider):
+   global cursor
+   sql = "SELECT tag_id \
+          FROM RFID_UID \
+          WHERE rider='" + str(rider) \
+          LIMIT 1;"
+   cursor.execute(sql)
+   if cursor.rowcount != 0:
+      row = str(cursor.fetchone())
+      retStr = row[0]
+   else:
+      retStr = "[,,,,]"
+   return retStr
 
 def Get_Rider(UID):
    global cursor
@@ -116,5 +129,57 @@ def Get_Latest_Car_Longitude(Car_Name):
    else:
       retStr = 0.0
    return retStr
+
+def Get_Fastest_Laps_For_Car(Car_Name,TopN)
+   global cursor
+   sql = "SELECT Riders_UID, Lap_Time \
+          FROM Lap_data \
+          WHERE Car_Name='" + Car_Name + "' \
+          ORDER BY datetimeACST DESC \
+          LIMIT " + TopN + ";"
+   cursor.execute(sql)
+   rows = cursor.fetchall()
+   return rows
+
+def Get_Fastest_Laps_For_UID(UID,TopN)
+   global cursor
+   sql = "SELECT Lap_Time \
+          FROM Lap_data \
+          WHERE Rider_UID='" + UID + "' \
+          ORDER BY entry_id DESC \
+          LIMIT " + TopN + ";"
+   cursor.execute(sql)
+   rows = cursor.fetchall()
+   return rows
+
+
+def Get_Fastest_Laps_For_Rider(Rider_Name,TopN)
+   global cursor
+   # Get riders UID
+   sql = "SELECT tag_id \
+          FROM RFID_UID \
+          WHERE rider='" + Rider_Name + "' \
+          ORDER BY entry_id DESC \
+          LIMIT 1;"
+   cursor.execute(sql)
+   if cursor.count:
+     row = cursor.fetchone()
+     UID = row[0]
+     rows = Get_Fastest_Laps_For_UID(UID,TopN)
+     return rows
+   else:
+     return None
+
+def Get_Last_Laps_For_Car(Car_Name,TopN)
+   global cursor
+   sql = "SELECT Lap_Number, Riders_UID, Lap_Time \
+          FROM Lap_data \
+          WHERE Car_Name='" + Car_Name + "' \
+          ORDER BY datetimeACST DESC \
+          LIMIT " + TopN + ";"
+   cursor.execute(sql)
+   rows = cursor.fetchall()
+   return rows
+
 
 print "Current Latitude in TEST : ", Get_Latest_Car_Latitude("TEST")
