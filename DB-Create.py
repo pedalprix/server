@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ####################################################
-# ProcessDB.py
+# DB-Create.py
 
 # This script processes the GPS and RFID log database and generates lap data as it detects GPS co-ordinates crossing start/finish line
 # The scripts regularly looks at he 
