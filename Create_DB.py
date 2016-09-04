@@ -89,7 +89,7 @@ def Create_Blank_DB():
    # 3. Create RFID_Log table
    sql = "CREATE TABLE RFID_Log( \
              entry_id        INT NOT NULL AUTO_INCREMENT, \
-             datetimeACST    DATETIME, \
+             datetimeACST    DATETIME(3), \
              Car_Name        TEXT, \
              Car_IP          TEXT, \
              Riders_UID      TEXT, \
@@ -100,7 +100,7 @@ def Create_Blank_DB():
    # 4. Create GPS_Log table
    sql = "CREATE TABLE GPS_Log( \
              entry_id        INT NOT NULL AUTO_INCREMENT, \
-             datetimeACST    DATETIME, \
+             datetimeACST    DATETIME(3), \
              Car_Name        TEXT, \
              Car_IP          TEXT, \
              Msg_Count       INT, \
@@ -133,3 +133,12 @@ def Create_Blank_DB():
    SendToSQL(sql)
 
    return
+
+
+# sql = "CREATE TABLE TEST_IT( \
+          entry_id        INT NOT NULL AUTO_INCREMENT, \
+          PRIMARY KEY (entry_id));"
+# SendToSQL("CREATE TABLE T (dt DATETIME(3));")   
+
+
+

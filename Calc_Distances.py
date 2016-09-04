@@ -8,7 +8,7 @@
 # ProcessedTime holed the value of time that the 
 
 
-import MySQLdb
+import MySQLdb 
 import json
 import sys
 import time
@@ -89,11 +89,12 @@ while True:
   # Get all rows from GPS_Log where D_Proc_Flag = FALSE
   sql = "SELECT entry_id, Car_Latitude, Car_Longitude, Car_Speed \
          FROM GPS_Log \
-         WHERE D_Proc_Flag=0;"
+         WHERE D_Finish_Line IS NULL OR D_Pit_Lane_Start IS NULL OR D_Pit_Lane_End IS NULL OR D_Pits IS NULL;"
   cursor.execute(sql)
   if cursor.rowcount: # Something to do
     rows = cursor.fetchall()
     for row in rows:
+      D_Proc_Flag = False
       entry_id = row[0]
       Car_Location = (row[1],row[2])
       Car_Speed = row[3]
@@ -109,9 +110,41 @@ while True:
 
 #      astring = "D_Finish_Line :" + str(D_Finish_Line) + "  Limit_Distance " + str(Limit_Distance)
 #      print astring
+      if D_Finish_Line < Limit_Distance:
+         print "Distance within limit of finish line at entry_id : ", entry_id
+         D_Proc_Flag = True
 
+         # BEGIN: CODE TO SET D_ProcFlag True when closest to finish line.
+         # Get previous entry
+         sql = "SELECT entry_id, D_Proc_Flag, D_Finish_Line FROM GPS_Log WHERE entry_id=" + str(entry_id-1) + ";"
+         cursor.execute(sql)
+         if cursor.rowcount:
+            prevRow=cursor.fetchone()
+            print "Previous row : ", prevRow
+            prev_entry_id = prevRow[0]
+            prev_D_Proc_Flag = prevRow[1]
+            prev_D_Finish_Line = prevRow[2]
+         else:
+            prev_entry_id = None
+            prev_D_Proc_Flag = False
+            prev_D_Finish_Line = 100.0
+
+         if D_Finish_Line <= prev_D_Finish_Line: # Current is closer than previous
+            # Clear previous entry's D_Proc_Flag
+            print " Clearing D_Proc_Flag for entry_id : ", prev_entry_id
+            sql = "UPDATE GPS_Log SET D_Proc_Flag=False WHERE entry_id=" + str(prev_entry_id) + ";"
+            SendToSQL(sql)
+            sql = "SELECT entry_id, D_Proc_Flag FROM GPS_Log WHERE entry_id=" + str(prev_entry_id) + ";"
+            cursor.execute(sql)
+            print "Result : ", cursor.fetchone()
+
+         else: # Previous is closer than current
+            D_Proc_Flag=False
+         # END: NEW CODE TO SET D_ProcFlag True when closest to finish line.
+
+      # Update database
       sql = "UPDATE GPS_Log \
-             SET D_Proc_Flag=TRUE, \
+             SET D_Proc_Flag=" + str(D_Proc_Flag) + ", \
                  D_Finish_Line=" + str(D_Finish_Line) + ", \
                  D_Pit_Lane_Start=" + str(D_Pit_Lane_Start) + ", \
                  D_Pit_Lane_End=" + str(D_Pit_Lane_End) + ", \
