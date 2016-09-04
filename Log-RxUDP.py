@@ -73,23 +73,28 @@ try:
             datetimeACST = str(datetime.datetime.strptime(json_data['TimeACST'], '%Y-%m-%d %H:%M:%S'))
             Msg_Count = int(json_data['Msg_Count'])
             Car_Name = json_data['Car_Name']
+            GPSdatetimeUTC = str(datetime.datetime.strptime(json_data['Msg'][0]['tpv'][0]['time'], '%Y-%m-%dT%H:%M:%S.%fZ')) #"2016-06-19T01:50:42.000Z"
+            GPSdatetimeACST = GPSdatetimeUTC
             Car_Latitude = float(json_data['Msg'][0]['tpv'][0]['lat'])
             Car_Longitude = float(json_data['Msg'][0]['tpv'][0]['lon'])
-            Car_Speed = float(json_data['Msg'][0]['tpv'][0]['speed'])
+            Car_Speed_mps = float(json_data['Msg'][0]['tpv'][0]['speed'])
+            Car_Speed = Car_Speed_mps * 3.6 # meters per second to kilometers per hour
 
          except: # just get the next message
             print "ERROR processing JSON fields in GPS message."
             continue
 
          try: # insert info into database
-            sql_query = "INSERT INTO GPS_Log(datetimeACST, Msg_Count, Car_Name, Car_Longitude, Car_Latitude, Car_Speed, Car_IP) \
-                         VALUES             ('%s',         %d,        '%s',     %f,            %f,           %f,        '%s');" \
-                         %                  (datetimeACST, Msg_Count, Car_Name, Car_Longitude, Car_Latitude, Car_Speed, Car_IP)
+            sql_query = "INSERT INTO GPS_Log(datetimeACST, Msg_Count, Car_Name, GPSdatetimeACST, Car_Longitude, Car_Latitude, Car_Speed, Car_IP) \
+                         VALUES             ('%s',         %d,        '%s',     '%s',            %f,            %f,           %f,        '%s');" \
+                         %                  (datetimeACST, Msg_Count, Car_Name, GPSdatetimeACST, Car_Longitude, Car_Latitude, Car_Speed, Car_IP)
             cursor.execute(sql_query)
             db.commit()
 #            print "Message %d added to database from %s with datestamp %s" % (Msg_Count, msg_type, datetimeACST)
          except:
-            print "GPS: SQL Exception"
+            print "GPS: SQL Exception =============================="
+            print spl_query
+            print "-------------------------------------------------"
             db.rollback()
 
       # RFID
