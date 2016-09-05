@@ -86,7 +86,7 @@ _1m = _105m / 105.0
 Limit_Distance = 30.0
 
 while True:
-  # Get all rows from GPS_Log where D_Proc_Flag = FALSE
+  # Get all rows from GPS_Log where D_Finish_Line IS NULL OR D_Pit_Lane_Start IS NULL OR D_Pit_Lane_End IS NULL OR D_Pits IS NULL
   sql = "SELECT entry_id, Car_Latitude, Car_Longitude, Car_Speed \
          FROM GPS_Log \
          WHERE D_Finish_Line IS NULL OR D_Pit_Lane_Start IS NULL OR D_Pit_Lane_End IS NULL OR D_Pits IS NULL;"
