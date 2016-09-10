@@ -4,3 +4,12 @@
 # Ignore everything in Archive directory
 Archive/**
 
+# Ignore everything in RxFiles directory
+RxFiles/**
+
+# Ignore everything in output-jsons directory
+output-jsons/**
+
+# Ignore everything in RFIDtagLogs directory
+RFIDtagLogs/**
+

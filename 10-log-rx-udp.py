@@ -75,7 +75,7 @@ try:
             datetimeACST = str(datetime.datetime.strptime(json_data['TimeACST'], '%Y-%m-%d %H:%M:%S'))
             Msg_Count = int(json_data['Msg_Count'])
             Car_Name = json_data['Car_Name']
-            GPSdatetimeUTC = str(datetime.datetime.strptime(json_data['Msg'][0]['tpv'][0]['time'], '%Y-%m-%dT%H:%M:%S.%fZ')) #"2016-06-19T01:50:42.000Z"
+            GPSdatetimeUTC = datetime.datetime.strptime(json_data['Msg'][0]['tpv'][0]['time'], '%Y-%m-%dT%H:%M:%S.%fZ') #"2016-06-19T01:50:42.000Z"
             GPSdatetimeACST = GPSdatetimeUTC + datetime.timedelta(hours=9,minutes=30)
             Car_Latitude = float(json_data['Msg'][0]['tpv'][0]['lat'])
             Car_Longitude = float(json_data['Msg'][0]['tpv'][0]['lon'])
@@ -91,7 +91,7 @@ try:
                print json_data
                print "----------------------------------------------------------------------------------------"
             try:
-               datetimeACST = str(datetime.datetime.strptime(json_data['TimeACST'], '%Y-%m-%d %H:%M:%S'))
+               datetimeACST = datetime.datetime.strptime(json_data['TimeACST'], '%Y-%m-%d %H:%M:%S')
                print "datetimeACST:",datetimeACST
                Msg_Count = int(json_data['Msg_Count'])
                print "Msg_Count:",Msg_Count

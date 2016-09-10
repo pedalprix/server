@@ -9,6 +9,10 @@ import json
 import sys
 import datetime
 import re
+import ast
+import time
+import os
+
 
 configfilename = "Log-config.json"
 
@@ -92,14 +96,14 @@ def Get_Rider(UID):
    global cursor
    sql = "SELECT rider \
           FROM RFID_UID \
-          WHERE tag_id='" + str(UID) + "' AND rider<>'Unknown' \
+          WHERE tag_id='" + str(UID) + "' AND rider<>'Unknown' AND rider IS NOT NULL \
           LIMIT 1;"
    cursor.execute(sql)
    if cursor.rowcount != 0:
       row = cursor.fetchone()
       retStr = str(row[0])
    else:
-      retStr = None
+      retStr = UID  # will display UID for rider on monitor when UID not set
    return retStr
 
 #================================================================
@@ -151,7 +155,6 @@ def Get_Latest_Car_Latitude(Car_Name):
           ORDER BY GPSdatetimeACST DESC \
           LIMIT 1;"
    cursor.execute(sql)
-   print "rowcount : ", cursor.rowcount
    if cursor.rowcount > 0:
       row = cursor.fetchone()
       retStr = float(row[0])
@@ -208,6 +211,14 @@ def Get_Latest_GPS_Timestamp(Car_Name):
    return retStr
 
 #================================================================
+def Convert_UID_To_Hex(StrUID):
+   UID = ast.literal_eval(StrUID)
+   outStr = "0x" + str("%02X" % UID[0]) + str("%02X" % UID[1]) + str("%02X" % UID[2]) + str("%02X" % UID[3]) + str("%02X" % UID[4])
+   return outStr
+
+
+
+
 def Get_N_Fastest_Laps_For_Car(Car_Name,N):
    global cursor
    sql = "SELECT Riders_UID, Lap_Time \
@@ -264,11 +275,16 @@ def Get_Last_N_Laps_For_Car(Car_Name,N):
 ##########################
 ### TESTING 
 ##########################
+os.system('cls' if os.name == 'nt' else 'clear')
+
 uid = Get_UID('BenV')
 print "Get_UID('BenV') : ", uid
 
-rider = Get_Rider('[136, 4, 140, 3, 3]')
-print "Get_Rider('[136, 4, 140, 3, 3]') : ", rider
+rider = Get_Rider('[136, 4, 10, 113, 2]')
+print "Get_Rider('[136, 4, 10, 113, 2]') : ", rider
+
+rider = Get_Rider('[136, 4, 140, 3, 2]')
+print "Get_Rider('[136, 4, 140, 3, 2]') : ", rider
 
 uid = Get_Latest_UID('TEST')
 print "Get_Latest_UID('TEST') : ", uid
@@ -300,10 +316,14 @@ print "Get_Latest_RFID_Timestamp('TEST') : ", dtStr
 dtStr = Get_Latest_GPS_Timestamp('SIM')
 print "Get_Latest_GPS_Timestamp('SIM') : ", dtStr
 
+drt = Convert_UID_To_Hex('[16,8,255,64,127]')
+print "Convert_UID_To_Hex('[16,8,255,64,127]') : ", drt
 
-timestr = '2016-09-03 04:52:28'
-print "dt : ", timestr
-dt = datetime.datetime.strptime(timestr,'%Y-%m-%d %H:%M:%S')
-dt1 = 
-print "dt + dt : ", dt
+
+dt1 = datetime.datetime.now()
+# time.sleep(5)
+dt2 = datetime.datetime.now() # after a 5-second or so pause
+diff = dt2 - dt1
+print "dt2 - dt1 : ", diff
+
 

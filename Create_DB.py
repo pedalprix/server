@@ -12,6 +12,7 @@ import MySQLdb
 import json
 import sys
 import re
+import os
 
 configfilename = "Log-config.json"
 
@@ -131,7 +132,7 @@ def Create_GPS_Log_table():
              Car_Latitude      DOUBLE,
              Car_Logitude      DOUBLE,
              Car_Speed         FLOAT,
-             D_Proc_Flag       BOOLEAN NOT NULL DEFAULT FALSE,
+             Finish_Line       BOOLEAN NOT NULL DEFAULT FALSE,
              D_Finish_Line     DOUBLE,
              D_Pit_Lane_Start  DOUBLE,
              D_Pit_Lane_End    DOUBLE,
@@ -143,21 +144,16 @@ def Create_GPS_Log_table():
    return
 
 #================================================================
-def Create_DD_Sig_table():
+def Create_SF_Laps_table():
    # This table will have one computed entry for each entry in GPS_Log
    # Puts a TRUE in entry for SIG when DD_* is a min each lap
-   sql = "CREATE TABLE DD_Sig( \
-             entry_id        INT NOT NULL AUTO_INCREMENT, \
-             datetimeACST    DATETIME, \
-             Car_Name        TEXT, \
-             Car_Latitude    DOUBLE, \
-             Car_Logitude    DOUBLE, \
-             Car_Speed       FLOAT, \
-             Pos1_DD         DOUBLE, \
-             Pos1_Sig        BOOLEAN NOT NULL DEFAULT FALSE, \
-             Pos1_Sig_ORide  BOOLEAN NOT NULL DEFAULT FALSE, \
-             Pos1_Sig_ORVal  BOOLEAN NOT NULL DEFAULT FALSE, \
-             PRIMARY KEY (entry_id));"
+   sql = """CREATE TABLE SF_Laps(
+             entry_id        INT NOT NULL AUTO_INCREMENT,
+             Car_Name        TEXT,
+             End_Time        DATETIME,
+             Lap_Time        DATETIME,
+             Rider           TEXT,
+             PRIMARY KEY (entry_id));"""
    SendToSQL(sql)
    return
 
@@ -166,6 +162,7 @@ def Create_DD_Sig_table():
 ###################################
 ## Testing follows:
 ###################################
+os.system('cls' if os.name == 'nt' else 'clear')
 
 Drop_Table("RFID_UID")
 Create_RFID_UID_table()
@@ -173,5 +170,7 @@ Drop_Table("RFID_Log")
 Create_RFID_Log_table()
 Drop_Table("GPS_Log")
 Create_GPS_Log_table()
+Drop_Table("SF_Laps")
+Create_SF_Laps_table()
 
 
