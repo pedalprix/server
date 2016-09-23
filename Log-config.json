@@ -10,8 +10,8 @@
    "RFID_FIX_RX_PORT":5544,
 
    "SQL_Host":"localhost",
-   "SQL_User":"steve",
-   "SQL_Passwd":"amee",
+   "SQL_User":"root",
+   "SQL_Passwd":"benjov",
    "SQL_DB":"pp",
    "SQL_RFID_UID_table_name":"RFID_UID",
    "SQL_RFID_Log_table_name":"RFID_Log",
