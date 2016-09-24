@@ -56,7 +56,7 @@ try:
    db = MySQLdb.connect(host=SQL_Host,  # your host, usually localhost
                         user=SQL_User,     # your username
                         passwd=SQL_Passwd, # your password
-                        db='NewDB')          # name of the data base
+                        db='pp')          # name of the data base
 
    print "Connected"
    cursor = db.cursor()
